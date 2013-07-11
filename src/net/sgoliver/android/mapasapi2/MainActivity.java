@@ -4,11 +4,11 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -98,11 +98,15 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	{	
 		switch(item.getItemId())
 		{
-			case R.id.menu_marcadores:
-				mostrarMarcador(6.267221220428, -75.5690885335);
+			case R.id.menu_marcadores_ing:
+				mostrarMarcador(6.268283367644, -75.56728340685368, "bloque 19"); //bloque 19
+				mostrarMarcador(6.268370342305693, -75.56785807013512, "bloque 20"); //bloque 20
+				mostrarMarcador(6.268110723634329, -75.56821882724762, "bloque 21"); //bloque 21
+				mostrarMarcador(6.2676674719456305, -75.56743361055851, "bloque 18"); //bloque 18
+				//mostrarMarcador(6.267221220428, -75.5690885335); //biblioteca
 				break;
 			case R.id.menu_lineas:
-				//mostrarLineas();
+				limpiarMapa();
 				break;
 		}
 
@@ -123,10 +127,16 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 			mapa.animateCamera(camUpd3);
 	}
-	private void mostrarMarcador(double lat, double lng)
+	private void mostrarMarcador(double lat, double lng, String lugar)
 	{
+		
 	    mapa.addMarker(new MarkerOptions()
 	        .position(new LatLng(lat, lng))
-	        .title("Lugar: Biblioteca"));
+	        .title("Lugar:"+lugar)
+	        .snippet("Lugar:"+lugar).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)))
+	        ;
+	}
+	private void limpiarMapa(){
+		mapa.clear();
 	}
 }

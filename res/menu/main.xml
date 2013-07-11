@@ -1,8 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/menu_marcadores"
+    <item android:id="@+id/menu_marcadores_ing"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Marcadores"/>
+        android:title="Facultad de ingenieria"/>
     
     <item android:id="@+id/menu_lineas"
         android:orderInCategory="100"

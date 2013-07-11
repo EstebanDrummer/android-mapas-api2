@@ -54,7 +54,7 @@ int drawable ic_launcher 0x7f020018
 int id hybrid 0x7f050004
 int id map 0x7f050005
 int id menu_lineas 0x7f050007
-int id menu_marcadores 0x7f050006
+int id menu_marcadores_ing 0x7f050006
 int id none 0x7f050000
 int id normal 0x7f050001
 int id satellite 0x7f050002
