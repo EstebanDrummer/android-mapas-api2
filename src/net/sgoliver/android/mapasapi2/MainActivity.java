@@ -132,8 +132,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		
 	    mapa.addMarker(new MarkerOptions()
 	        .position(new LatLng(lat, lng))
-	        .title("Lugar:"+lugar)
-	        .snippet("Lugar:"+lugar).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)))
+	        .title("Lugar:"+lugar).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)))
 	        ;
 	}
 	private void limpiarMapa(){
