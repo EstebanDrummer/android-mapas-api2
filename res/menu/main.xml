@@ -2,12 +2,17 @@
     <item android:id="@+id/menu_marcadores_ing"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Facultad de ingenieria"/>
+        android:title="Limpiar"/>
+    
+    <item android:id="@+id/menu_location"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Mi ubicación"/>
     
     <item android:id="@+id/menu_recreation"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Recreación"/>
+        android:title="Zona de Deportes"/>
     
     <item android:id="@+id/menu_Salas_de_computadores"
         android:orderInCategory="100"
@@ -22,7 +27,7 @@
     <item android:id="@+id/menu_parking"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Parking"/>
+        android:title="Zona de Parking"/>
     
     <item android:id="@+id/menu_restroom"
         android:orderInCategory="100"

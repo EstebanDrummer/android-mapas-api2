@@ -18,6 +18,8 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import com.google.android.gms.maps.Projection;
 
@@ -32,6 +34,9 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		mapa = ((SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map)).getMap();
+		
 		inicio();//inicializamos mapa en UdeA
 		mapa.setOnMapClickListener(new OnMapClickListener() {
 			@Override
@@ -39,7 +44,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				// TODO Auto-generated method stub
 				Projection proj = mapa.getProjection();
 				Point coord = proj.toScreenLocation(point);
-
+				
+				
 				Toast.makeText(
 						MainActivity.this, 
 						"Click\n" + 
@@ -51,7 +57,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 			}
 		});
 		limiteUdeA();
-		mapa.setOnMapLongClickListener(new OnMapLongClickListener() {
+		/*mapa.setOnMapLongClickListener(new OnMapLongClickListener() {
 			public void onMapLongClick(LatLng point) {
 				Projection proj = mapa.getProjection();
 				Point coord = proj.toScreenLocation(point);
@@ -64,7 +70,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 						"X: " + coord.x + " - Y: " + coord.y,
 						Toast.LENGTH_SHORT).show();
 			}
-		});
+		});*/
 		/*Si s descomenta esta linea agregar 
 		 * import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 		 * mapa.setOnCameraChangeListener(new OnCameraChangeListener() {
@@ -81,7 +87,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 			}
 		});*/
 
-		mapa.setOnMarkerClickListener(new OnMarkerClickListener() {
+		/*mapa.setOnMarkerClickListener(new OnMarkerClickListener() {
 			public boolean onMarkerClick(Marker marker) {
 				Toast.makeText(
 						MainActivity.this, 
@@ -90,7 +96,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 						Toast.LENGTH_SHORT).show();
 				return false;
 			}
-		});
+		});*/
 	}
 
 	@Override
@@ -105,7 +111,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		{ 
 			case R.id.menu_marcadores_ing:
 				limpiarMapa();
-				
+				mapa.setMyLocationEnabled(false);
+				//String dos =ubicacion.textOut2;
 				//mostrarMarcador(6.268283367644, -75.56728340685368, "bloque 19"); //bloque 19
 				//mostrarMarcador(6.268370342305693, -75.56785807013512, "bloque 20"); //bloque 20
 				//mostrarMarcador(6.268110723634329, -75.56821882724762, "bloque 21"); //bloque 21
@@ -115,6 +122,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				
 				break;
 			case R.id.menu_recreation:
+				zonaRecreation1();
+				zonaRecreation2();
 				int iconSo = R.drawable.soccer2;
 				mostrarMarcador(6.269207186719753, -75.56761734187603, "Cancha Sintética", iconSo);
 				mostrarMarcador(6.269448141672462, -75.56949153542519, "Cancha de Fútbol", iconSo);
@@ -153,6 +162,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				mostrarMarcador(6.268250364501864,-75.56773223944664 , "Sala 3 bloque 20", iconC);
 				break;
 			case R.id.menu_parking:
+				zonaParking1();
+				zonaParking2();
 				int iconP = R.drawable.parking;
 				mostrarMarcador(6.266966933546314, -75.56779738515615, "Parking", iconP);
 				mostrarMarcador(6.267457510487932, -75.57039745151997, "Parking", iconP);
@@ -168,14 +179,25 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				mostrarMarcador(6.268453993480358, -75.56823659688234, "Baño Hombres", iconR);
 				mostrarMarcador(6.268365676502711, -75.56863021105528, "Baños", iconR);
 				break;
-			
+			case R.id.menu_location:
+				miubicacion();
+				break;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
+	private void miubicacion() {
+		// TODO Auto-generated method stub
+		mapa.setMyLocationEnabled(true);
+		/*mapa.addMarker(new MarkerOptions()
+        .position(new LatLng(mapa.getMyLocation().getLatitude(),mapa.getMyLocation().getLongitude())
+        ))
+        ;*/
+	}
+
 	private void inicio(){
 		 
-		mapa = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+		 mapa = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 		 mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);//vista hibrida, satelital con nombres
 			//LatLng udea = new LatLng(6.267221220428, -75.5690885335);
 		 LatLng udea = new LatLng(6.2674398470598565, -75.5684907361865);
@@ -235,4 +257,74 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		mapa.clear();
 		limiteUdeA();
 	}
+	private void zonaParking1() {
+		PolygonOptions rectangulo = new PolygonOptions()
+			.add(    new LatLng(6.267498,-75.567967),
+					 new LatLng(6.266632,-75.568093),
+					 new LatLng(6.266555,-75.56758),
+					 new LatLng(6.267421,-75.56747)
+					 );
+
+			rectangulo.strokeWidth(8);
+			rectangulo.strokeColor(Color.argb(60, 255,255,0));
+		    rectangulo.fillColor(Color.argb(60, 255,255,0));
+
+			mapa.addPolygon(rectangulo);
+		}
+	private void zonaParking2() {
+		PolygonOptions rectangulo = new PolygonOptions()
+			.add(    new LatLng(6.267773,-75.570641),
+					 new LatLng(6.267202,-75.570697),
+					 new LatLng(6.2672,-75.570271),
+					 new LatLng(6.267746,-75.570239)
+					 );
+
+			rectangulo.strokeWidth(8);
+			rectangulo.strokeColor(Color.argb(60, 255,255,0));
+		    rectangulo.fillColor(Color.argb(60, 255,255,0));
+
+			mapa.addPolygon(rectangulo);
+		}
+	private void zonaRecreation1() {
+		PolygonOptions rectangulo = new PolygonOptions()
+			.add(    new LatLng(6.269548,-75.567302),
+					 new LatLng(6.270193,-75.569619),
+					 new LatLng(6.270108,-75.569785),
+					 new LatLng(6.269927,-75.569952),
+					 new LatLng(6.268962,-75.570059),
+					 new LatLng(6.268818,-75.569957),
+					 new LatLng(6.26869,-75.569775),
+					 new LatLng(6.268652,-75.569469),
+					 new LatLng(6.268642,-75.568616),
+					 new LatLng(6.268818,-75.568573),
+					 new LatLng(6.268679,-75.567377)
+					 );
+
+			rectangulo.strokeWidth(8);
+			rectangulo.strokeColor(Color.argb(60, 230, 95, 0));
+		    rectangulo.fillColor(Color.argb(60, 230, 95, 0));
+
+			mapa.addPolygon(rectangulo);
+		}
+	private void zonaRecreation2() {
+		PolygonOptions rectangulo = new PolygonOptions()
+			.add(    new LatLng(6.269818,-75.566907),
+					 new LatLng(6.270226,-75.568122),
+					 new LatLng(6.270005,-75.568189),
+					 new LatLng(6.269597,-75.566974)
+					 );
+
+			rectangulo.strokeWidth(8);
+			rectangulo.strokeColor(Color.argb(60, 230, 95, 0));
+		    rectangulo.fillColor(Color.argb(60, 230, 95, 0));
+
+			mapa.addPolygon(rectangulo);
+		}
+
+	/*  public void animateCamera(View view) {
+	     if (mapa.getMyLocation() != null){
+	        mapa.animateCamera(CameraUpdateFactory.newLatLngZoom(
+	           new LatLng( mapa.getMyLocation().getLatitude(),mapa.getMyLocation().getLongitude()), 16));
+	     }
+	   }*/
 }
