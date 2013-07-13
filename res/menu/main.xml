@@ -4,9 +4,29 @@
         android:showAsAction="never"
         android:title="Facultad de ingenieria"/>
     
-    <item android:id="@+id/menu_lineas"
+    <item android:id="@+id/menu_recreation"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Lineas"/>
+        android:title="Recreación"/>
+    
+    <item android:id="@+id/menu_Salas_de_computadores"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Computer Labs"/>
+    
+    <item android:id="@+id/menu_Cafeterias"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Dining"/>
+    
+    <item android:id="@+id/menu_parking"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Parking"/>
+    
+    <item android:id="@+id/menu_restroom"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Restroom"/>
 
 </menu>
