@@ -13,22 +13,22 @@
     <item android:id="@+id/menu_Salas_de_computadores"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Computer Labs"/>
+        android:title="Laboratorios de computo"/>
     
     <item android:id="@+id/menu_Cafeterias"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Dining"/>
+        android:title="Zona de comidas"/>
     
     <item android:id="@+id/menu_parking"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Zona de Parking"/>
+        android:title="Zona de parqueo"/>
     
     <item android:id="@+id/menu_restroom"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Restroom"/>
+        android:title="Baños"/>
     
     <item android:id="@+id/menu_marcadores_ing"
         android:orderInCategory="100"

@@ -44,7 +44,7 @@ import android.graphics.Point;
 public class MainActivity extends android.support.v4.app.FragmentActivity implements SearchView.OnQueryTextListener {
 
 	private GoogleMap mapa = null;
-	private SearchView mSearchView;
+	private SearchView mSearchView;//para la busqueda
     private TextView mStatusView;
     BaseDatosHelper miBBDDHelper;
 	
@@ -53,13 +53,14 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_main);
-		  mStatusView = (TextView) findViewById(R.id.status_text);
+		  mStatusView = (TextView) findViewById(R.id.status_text);//esto creo q no sirve pa nada
 		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);//da error
 
 		mapa = ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
 		
 		inicio();//inicializamos mapa en UdeA
+		
 		mapa.setOnMapClickListener(new OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng point) {
@@ -133,8 +134,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 		MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         MenuItem searchItem = menu.findItem(R.id.menu_buscar);
-        mSearchView = (SearchView) searchItem.getActionView();
-        mSearchView.setOnQueryTextListener(this);
+        mSearchView = (SearchView) searchItem.getActionView();//para la busqueda
+        mSearchView.setOnQueryTextListener(this);//para la busqueda
 		return true;
 	}
 	
@@ -382,18 +383,20 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 				Toast.LENGTH_SHORT).show();
 		return false;
 	}
+	//Para la busqueda
 	@Override
 	public boolean onQueryTextChange(String arg0) {
 		return false;
 	}
+	//Para la busqueda
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		String tag = null;
-		Log.d(tag, "antes de entrar al get");
 		
-		onClose();
-		lista(query);
-		
+		//Log.d(tag, "antes de entrar al get");
+		//onClose();
+		Log.d("Minuscula",query.toLowerCase());
+		lista(query.toLowerCase());
 		return false;
 	}
     public boolean onClose() {
@@ -402,14 +405,15 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
     }
     
 	public ArrayList<Lugar> getItems(String query) {
-		//Abrimos una conexi�n
+		
 		String lugar;
 		String latitud;
 		String longitud;
+		//Abrimos una conexi�n
 		miBBDDHelper.abrirBaseDatos();
 		//Consultamos los datos
 		ArrayList<Lugar> listaLugares = miBBDDHelper.GetLugares();
-		//nuevo
+		//obtiene ubicación del query mandado por el usuario
 		try {
 			ArrayList<String> ubicacion = miBBDDHelper.getUbicacion(query);
 			lugar = ubicacion.get(0);
@@ -421,7 +425,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 			//convertilos a double
 			double latd = Double.parseDouble(latitud);
 			double longd = Double.parseDouble(longitud);
-			
+			//mostrar el lugar en un marcador
 			mostrarUbicacion(latd, longd, lugar);
 			
 			Toast.makeText(
@@ -448,10 +452,10 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 			throw new Error("Unable to create database");
 		}
 	}
+	//metodo que recibe lo ingresado por el usuario para la busqueda
 	public void lista(String query){
 		//BD
 		crearBBDD();
-		
 		// Obtenemos la lista de Libros
 		ArrayList<Lugar> Lugar = getItems(query);
 		
