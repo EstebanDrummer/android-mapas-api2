@@ -155,9 +155,10 @@ public class BaseDatosHelper extends SQLiteOpenHelper {
 	     	Cursor c = myDataBase.query(TABLE_LUGARES, 
 	     			new String[] {TABLE_KEY_ID, TABLE_KEY_LUGAR, TABLE_KEY_POSICION}, 
 	     			null, null, null, null, null);
-	     	Log.d("error", "Si ");
+	     	
 	     	//Iteramos a traves de los registros del cursor
-	     	c.moveToFirst();Log.d("dato", c.getString(0));
+	     	c.moveToFirst();
+	     	Log.d("dato", c.getString(0));
 	         while (c.isAfterLast() == false) {
 	         //	Lugar libro = new Lugar();
 	         	
@@ -165,10 +166,23 @@ public class BaseDatosHelper extends SQLiteOpenHelper {
 	         	
 	         	Log.d("dato", c.getString(2));
 	         	
-	        	    c.moveToNext();
+	         c.moveToNext();
 	         }
 	         c.close();
-	         Log.d("error", "termineeeeeeee");
+	         
 	         return listaLugares;
+	     }
+	     
+	     public void getUbicacion(String query){
+	    	 Log.d("dato", "primero get");
+	    	 String sqlBuscar ="SELECT * FROM Lugar WHERE Lugar.lugar == \""+query+"\"";
+	    	 
+	    	 Cursor c =myDataBase.rawQuery(sqlBuscar,null);
+	    	 Log.d("dato", "antessss");
+	    	 c.moveToFirst();
+	         Log.d("dato", c.getString(1));
+	         Log.d("dato", c.getString(2));
+	         Log.d("dato", query);
+	    	 
 	     }
 }

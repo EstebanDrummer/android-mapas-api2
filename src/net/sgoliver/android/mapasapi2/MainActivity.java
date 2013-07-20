@@ -379,9 +379,11 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		String tag = null;
-		Log.d(tag, query);
+		Log.d(tag, "antes de entrar al get");
+		
 		onClose();
-		lista();
+		lista(query);
+		
 		return false;
 	}
     public boolean onClose() {
@@ -389,11 +391,21 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
         return false;
     }
     
-	public ArrayList<Lugar> getItems() {
+	public ArrayList<Lugar> getItems(String query) {
 		//Abrimos una conexi�n
 		miBBDDHelper.abrirBaseDatos();
 		//Consultamos los datos
 		ArrayList<Lugar> listaLugares = miBBDDHelper.GetLugares();
+		//nuevo
+		try {
+			miBBDDHelper.getUbicacion(query);
+		} catch (Exception e) {
+			Toast.makeText(
+					MainActivity.this, 
+					"NO SE PUDO ENCONTRAR "+query+"EN EL MAPA ",
+					Toast.LENGTH_SHORT).show();
+		}
+		
 		//Cerramos la conexion
 		miBBDDHelper.close();
 		//Devolvemos los datos
@@ -407,11 +419,13 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 			throw new Error("Unable to create database");
 		}
 	}
-	public void lista(){
+	public void lista(String query){
 		//BD
 		crearBBDD();
+		
 		// Obtenemos la lista de Libros
-		ArrayList<Lugar> Lugar = getItems();
+		ArrayList<Lugar> Lugar = getItems(query);
+		
 		//BDFin
 	}
  
