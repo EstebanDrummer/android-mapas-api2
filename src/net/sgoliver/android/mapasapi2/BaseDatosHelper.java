@@ -23,7 +23,6 @@ public class BaseDatosHelper extends SQLiteOpenHelper {
 	    private static String DB_NAME = "BDLugars";
 	    //private static String DB_NAME = "Prueba2.sqlite";
 	    private SQLiteDatabase myDataBase; 
-	 
 	    private final Context myContext;
 	 
 	    /*
@@ -144,7 +143,9 @@ public class BaseDatosHelper extends SQLiteOpenHelper {
 		private final String TABLE_LUGARES = "Lugar";
 		private final String TABLE_KEY_ID = "_id";
 		private final String TABLE_KEY_LUGAR = "lugar";
-		private final String TABLE_KEY_POSICION = "Posicion";
+		private final String TABLE_KEY_LATITUDE = "Latitude";
+		private final String TABLE_KEY_LONGITUDE = "Longitude";
+		
 		
 		/*
 	     * Obtiene todos los libros desde la Base de Datos
@@ -153,7 +154,7 @@ public class BaseDatosHelper extends SQLiteOpenHelper {
 	     	ArrayList<Lugar> listaLugares = new ArrayList<Lugar>();
 	     	
 	     	Cursor c = myDataBase.query(TABLE_LUGARES, 
-	     			new String[] {TABLE_KEY_ID, TABLE_KEY_LUGAR, TABLE_KEY_POSICION}, 
+	     			new String[] {TABLE_KEY_ID, TABLE_KEY_LUGAR, TABLE_KEY_LATITUDE,TABLE_KEY_LONGITUDE}, 
 	     			null, null, null, null, null);
 	     	
 	     	//Iteramos a traves de los registros del cursor
@@ -173,16 +174,23 @@ public class BaseDatosHelper extends SQLiteOpenHelper {
 	         return listaLugares;
 	     }
 	     
-	     public void getUbicacion(String query){
+	     public ArrayList<String> getUbicacion(String query){
 	    	 Log.d("dato", "primero get");
 	    	 String sqlBuscar ="SELECT * FROM Lugar WHERE Lugar.lugar == \""+query+"\"";
-	    	 
+	    	 ArrayList<String> ubicacion = new ArrayList<String>();
 	    	 Cursor c =myDataBase.rawQuery(sqlBuscar,null);
 	    	 Log.d("dato", "antessss");
 	    	 c.moveToFirst();
 	         Log.d("dato", c.getString(1));
+	         ubicacion.add(c.getString(1));
 	         Log.d("dato", c.getString(2));
-	         Log.d("dato", query);
+	         ubicacion.add(c.getString(2));
+	         Log.d("dato", c.getString(3));
+	         ubicacion.add(c.getString(3));
+	         
+	         return ubicacion;
+	         
+	        
 	    	 
 	     }
 }

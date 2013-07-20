@@ -291,6 +291,16 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 	        .icon(BitmapDescriptorFactory.fromResource(icon)))
 	        ;
 	}
+	//metodod para mostrar ubicacion buscada
+	private void mostrarUbicacion(double lat, double lng, String lugar)
+	{
+		
+		 mapa.addMarker(new MarkerOptions()
+	        .position(new LatLng(lat, lng))
+	        .title("Su sitio:"+lugar))
+	        ;
+	}
+	
 	private void limpiarMapa(){
 		mapa.clear();
 		limiteUdeA();
@@ -393,19 +403,38 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
     
 	public ArrayList<Lugar> getItems(String query) {
 		//Abrimos una conexi�n
+		String lugar;
+		String latitud;
+		String longitud;
 		miBBDDHelper.abrirBaseDatos();
 		//Consultamos los datos
 		ArrayList<Lugar> listaLugares = miBBDDHelper.GetLugares();
 		//nuevo
 		try {
-			miBBDDHelper.getUbicacion(query);
+			ArrayList<String> ubicacion = miBBDDHelper.getUbicacion(query);
+			lugar = ubicacion.get(0);
+			Log.d("MAIN este", lugar);
+			latitud = ubicacion.get(1);
+			Log.d("MAIN este", latitud);
+			longitud = ubicacion.get(2);
+			Log.d("MAIN este", longitud);
+			//convertilos a double
+			double latd = Double.parseDouble(latitud);
+			double longd = Double.parseDouble(longitud);
+			
+			mostrarUbicacion(latd, longd, lugar);
+			
+			Toast.makeText(
+					MainActivity.this, 
+					"El lugar"+query+" ha sido ubicado en el mapa ",
+					Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
+			//si no encuentra el lugar que envio en el query
 			Toast.makeText(
 					MainActivity.this, 
 					"NO SE PUDO ENCONTRAR "+query+"EN EL MAPA ",
 					Toast.LENGTH_SHORT).show();
 		}
-		
 		//Cerramos la conexion
 		miBBDDHelper.close();
 		//Devolvemos los datos
