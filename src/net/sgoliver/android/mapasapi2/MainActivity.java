@@ -1,5 +1,13 @@
 package net.sgoliver.android.mapasapi2;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+
+import net.sgoliver.android.mapasapi2.R;
+
+import net.sgoliver.android.mapasapi2.BaseDatosHelper;
+import net.sgoliver.android.mapasapi2.Lugar;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,27 +21,41 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-
-
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.Projection;
-
+import android.annotation.SuppressLint;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 
-public class MainActivity extends android.support.v4.app.FragmentActivity {
+public class MainActivity extends android.support.v4.app.FragmentActivity implements SearchView.OnQueryTextListener {
 
 	private GoogleMap mapa = null;
+	private SearchView mSearchView;
+    private TextView mStatusView;
+    BaseDatosHelper miBBDDHelper;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_main);
+		  mStatusView = (TextView) findViewById(R.id.status_text);
+		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);//da error
+
 		mapa = ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
 		
@@ -57,6 +79,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 			}
 		});
 		limiteUdeA();
+
 		/*mapa.setOnMapLongClickListener(new OnMapLongClickListener() {
 			public void onMapLongClick(LatLng point) {
 				Projection proj = mapa.getProjection();
@@ -97,13 +120,24 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				return false;
 			}
 		});*/
+				
 	}
+
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
+		/*getMenuInflater().inflate(R.menu.main, menu);
+		mSearchView = (SearchView) menu.findItem(R.id.menu_buscar).getActionView();
+		*/
+		MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        MenuItem searchItem = menu.findItem(R.id.menu_buscar);
+        mSearchView = (SearchView) searchItem.getActionView();
+        mSearchView.setOnQueryTextListener(this);
 		return true;
 	}
+	
 	@Override 
 	public boolean onOptionsItemSelected(MenuItem item) 
 	{	
@@ -155,7 +189,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 			case R.id.menu_Salas_de_computadores:
 				
 				int iconC = R.drawable.computers;
-				mostrarMarcador(6.267631478558866, -75.56759253144264, "LIS", iconC);
+				mostrarMarcador(6.267631478558866, -75.56759253144264, "lis", iconC);
 				mostrarMarcador(6.26781544473171, -75.56769981980324, "Telemática", iconC);
 				mostrarMarcador(6.268334672985597,-75.56792570819855 , "Sala 1 bloque 20", iconC);
 				mostrarMarcador(6.26833800755324,-75.56779616004229 , "Sala 2 bloque 20", iconC);
@@ -181,6 +215,10 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				break;
 			case R.id.menu_location:
 				miubicacion();
+				break;
+			
+			case R.id.menu_buscar:
+				
 				break;
 		}
 
@@ -327,4 +365,54 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	           new LatLng( mapa.getMyLocation().getLatitude(),mapa.getMyLocation().getLongitude()), 16));
 	     }
 	   }*/
+	public boolean onSearchRequested(){
+		Toast.makeText(
+				MainActivity.this, 
+				mSearchView.getQuery(),
+				Toast.LENGTH_SHORT).show();
+		return false;
+	}
+	@Override
+	public boolean onQueryTextChange(String arg0) {
+		return false;
+	}
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		String tag = null;
+		Log.d(tag, query);
+		onClose();
+		lista();
+		return false;
+	}
+    public boolean onClose() {
+    	Log.d("close", "Closed!");
+        return false;
+    }
+    
+	public ArrayList<Lugar> getItems() {
+		//Abrimos una conexi�n
+		miBBDDHelper.abrirBaseDatos();
+		//Consultamos los datos
+		ArrayList<Lugar> listaLugares = miBBDDHelper.GetLugares();
+		//Cerramos la conexion
+		miBBDDHelper.close();
+		//Devolvemos los datos
+		return listaLugares;
+	}
+	public void crearBBDD() {
+		miBBDDHelper = new BaseDatosHelper(this);
+		try {
+			miBBDDHelper.crearDataBase();
+		} catch (IOException ioe) {
+			throw new Error("Unable to create database");
+		}
+	}
+	public void lista(){
+		//BD
+		crearBBDD();
+		// Obtenemos la lista de Libros
+		ArrayList<Lugar> Lugar = getItems();
+		//BDFin
+	}
+ 
 }
