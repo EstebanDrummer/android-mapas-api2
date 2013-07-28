@@ -3,11 +3,16 @@ package net.sgoliver.android.mapasapi2;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import oauth.signpost.OAuthProvider;
+import oauth.signpost.basic.DefaultOAuthProvider;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+
 
 import net.sgoliver.android.mapasapi2.R;
 
 import net.sgoliver.android.mapasapi2.BaseDatosHelper;
 import net.sgoliver.android.mapasapi2.Lugar;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +26,8 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +46,7 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 
@@ -47,11 +56,17 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 	private SearchView mSearchView;//para la busqueda
     private TextView mStatusView;
     BaseDatosHelper miBBDDHelper;
+	private static CommonsHttpOAuthConsumer httpOauthConsumer;
+	private static OAuthProvider httpOauthprovider;
+	private Button btnOAuth;
+	private EditText text;
+	private String tweet="";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Log.d("State","Estoy en onCreate");
 		setContentView(R.layout.activity_main);
 		  mStatusView = (TextView) findViewById(R.id.status_text);//esto creo q no sirve pa nada
 		//getWindow().requestFeature(Window.FEATURE_ACTION_BAR);//da error
@@ -81,7 +96,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 		});
 		limiteUdeA();
 
-		/*mapa.setOnMapLongClickListener(new OnMapLongClickListener() {
+		mapa.setOnMapLongClickListener(new OnMapLongClickListener() {
+			
 			public void onMapLongClick(LatLng point) {
 				Projection proj = mapa.getProjection();
 				Point coord = proj.toScreenLocation(point);
@@ -90,11 +106,13 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 						MainActivity.this, 
 						"Click Largo\n" + 
 						"Lat: " + point.latitude + "\n" +
-						"Lng: " + point.longitude + "\n" +
+						"Lng: " + point.latitude + "\n" +
 						"X: " + coord.x + " - Y: " + coord.y,
 						Toast.LENGTH_SHORT).show();
+				tweet = "Prueba 2 "+ point.latitude+point.longitude+ " ";
+				autorizarApp();
 			}
-		});*/
+		});
 		/*Si s descomenta esta linea agregar 
 		 * import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 		 * mapa.setOnCameraChangeListener(new OnCameraChangeListener() {
@@ -121,7 +139,9 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 				return false;
 			}
 		});*/
-				
+		/*
+		Intent intent = this.getIntent();
+        this.onNewIntent(intent);}*/
 	}
 
 
@@ -232,6 +252,63 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
         .position(new LatLng(mapa.getMyLocation().getLatitude(),mapa.getMyLocation().getLongitude())
         ))
         ;*/
+	}
+
+	
+	/**
+	 * Called when the OAuthRequestTokenTask finishes (user has authorized the
+	 * request token). The callback URL will be intercepted here.
+	 */
+	@Override
+	protected  void onNewIntent(Intent intent) {
+		Log.d("aca ", "entreeeeeeeeeeeeeeeeeeeeeee");
+		super.onNewIntent(intent);
+		final Uri uri = intent.getData();
+		SharedPreferences preferencias = this.getSharedPreferences("TwitterPrefs", MODE_PRIVATE);
+		Log.i("MGL", "acá no llegué");
+		if (uri != null && uri.toString().indexOf(TwitterData.CALLBACK_URL) != -1) {
+			Log.i("MGL", "Callback received : " + uri);
+		
+			new RetrieveAccessTokenTask(this, getConsumer(), getProvider(),
+					preferencias, tweet).execute(uri);
+		}
+	}
+	
+	protected void autorizarApp() {
+		try{
+			getProvider().setOAuth10a(true);
+			Log.d("NO", "autorizar");
+			// retrieve the request token
+			new OAuthRequestTokenTask(this, getConsumer(), getProvider()).execute();
+			//new SendTuitTask(tweet+"via @CampusMapUdea", prefs).execute();
+			Log.d("NO", "autorizarº11");
+		} catch (Exception e) {
+			Log.d("error", "autorizar");
+			//codigoRespuesta.setText(e.getMessage());
+		}		
+	}
+	
+	public static OAuthProvider getProvider() {
+		if (httpOauthprovider == null) {
+			httpOauthprovider = new DefaultOAuthProvider(
+					TwitterData.REQUEST_URL, TwitterData.ACCESS_URL,
+					TwitterData.AUTHORIZE_URL);
+			httpOauthprovider.setOAuth10a(true);
+		}
+		return httpOauthprovider;
+	}
+
+	/**
+	 * @param context
+	 *            the context
+	 * @return the consumer (initialize on the first call)
+	 */
+	public static CommonsHttpOAuthConsumer getConsumer() {
+		if (httpOauthConsumer == null) {
+			httpOauthConsumer = new CommonsHttpOAuthConsumer(
+					TwitterData.CONSUMER_KEY, TwitterData.CONSUMER_SECRET);
+		}
+		return httpOauthConsumer;
 	}
 
 	private void inicio(){
