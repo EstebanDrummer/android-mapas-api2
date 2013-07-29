@@ -1,37 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#fff"
-    android:orientation="vertical" >
+<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
 
-    <!--  -->
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/udea" />
 
-    <TextView
+   <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Titulo"
-        android:textColor="#333"
-        android:textSize="30dp" />
-    <!--  -->
-
-    <ScrollView
+        android:linksClickable="true"
+        android:orientation="vertical" >
+ 
+    <TextView
+        android:id="@+id/tv_lat"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center|top"
+        android:linksClickable="true"
+        android:text="Titulo"
+        android:textSize="15dp"/>
 
-        <!--  -->
-
-        <TextView
-            android:id="@+id/textOut"
+    
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+<ScrollView
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Waiting..."
-            android:textColor="#333"
-            android:textSize="25dp" >
-        </TextView>
-    </ScrollView>
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_lng"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Contenidodfgdfgdfgdfgdfgdfgdfg" />
+</ScrollView>
+        </LinearLayout>
+
+ 
+</LinearLayout>
 
 </LinearLayout>

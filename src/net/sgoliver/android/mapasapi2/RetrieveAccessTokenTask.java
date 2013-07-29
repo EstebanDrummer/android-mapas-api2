@@ -68,7 +68,7 @@ public class RetrieveAccessTokenTask extends AsyncTask<Uri, Void, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		//Log.d("tuit", this.text);
         if(result){
-			String tuit = this.text + "via @CampusMapUdeA";
+			String tuit = this.text ;
 			Log.d("tuit", tuit);
 			new SendTuitTask(tuit, prefs).execute();
 

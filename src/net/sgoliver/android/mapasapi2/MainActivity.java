@@ -2,20 +2,16 @@ package net.sgoliver.android.mapasapi2;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.basic.DefaultOAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-
-
 import net.sgoliver.android.mapasapi2.R;
-
 import net.sgoliver.android.mapasapi2.BaseDatosHelper;
 import net.sgoliver.android.mapasapi2.Lugar;
-
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -26,10 +22,12 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,9 +40,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.Projection;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -61,11 +61,14 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 	private Button btnOAuth;
 	private EditText text;
 	private String tweet="";
+	private LatLng evento;
+	final Context context = this;
+	SharedPreferences prefs;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		prefs = this.getSharedPreferences("TwitterPrefs", MODE_PRIVATE);
 		Log.d("State","Estoy en onCreate");
 		setContentView(R.layout.activity_main);
 		  mStatusView = (TextView) findViewById(R.id.status_text);//esto creo q no sirve pa nada
@@ -75,8 +78,28 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
                 .findFragmentById(R.id.map)).getMap();
 		
 		inicio();//inicializamos mapa en UdeA
-		
-		mapa.setOnMapClickListener(new OnMapClickListener() {
+		/* aqui*/
+		mapa.setInfoWindowAdapter(new InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+            @Override
+            public View getInfoContents(Marker arg0) {
+                View v = getLayoutInflater().inflate(R.layout.main, null);
+                LatLng latLng = arg0.getPosition();
+                //String id = arg0.getId();
+                TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
+                TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
+                tvLat.setText(arg0.getTitle());
+                tvLat.setMovementMethod(LinkMovementMethod.getInstance());
+                tvLng.setText(arg0.getSnippet());
+                return v;
+            }
+        });
+	
+		 /*hasta aqui*/
+		/*mapa.setOnMapClickListener(new OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng point) {
 				// TODO Auto-generated method stub
@@ -93,25 +116,98 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 						Toast.LENGTH_SHORT).show();
 				
 			}
-		});
+		});*/
 		limiteUdeA();
 
 		mapa.setOnMapLongClickListener(new OnMapLongClickListener() {
 			
 			public void onMapLongClick(LatLng point) {
-				Projection proj = mapa.getProjection();
-				Point coord = proj.toScreenLocation(point);
+				evento=point;
+				// get prompts.xml view
+				LayoutInflater li = LayoutInflater.from(context);
+				View promptsView = li.inflate(R.layout.prompts, null);
+ 
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+						context);
+ 
+				// set prompts.xml to alertdialog builder
+				alertDialogBuilder.setView(promptsView);
+ 
+				final EditText userInput = (EditText) promptsView
+						.findViewById(R.id.editTextDialogUserInput);
+ 
+				// set dialog message
+				alertDialogBuilder
+					.setCancelable(false)
+					.setPositiveButton("OK",
+					  new DialogInterface.OnClickListener() {
+					    public void onClick(DialogInterface dialog,int id) {
+						// get user input and set it to result
+						// edit text
+					    	String lugar = dondetweet(evento);
+					    	Log.d("INGRESO", "USTED INGRESO"+userInput.getText());
+					    	if(TwitterUtils.isAuthenticated(prefs)){
+					    		Log.d("AUT","SI AUTE");
+					    		String tuit =" "+lugar+userInput.getText().toString()+" via @CampusMapUdeA";
+					    		new SendTuitTask(tuit, prefs).execute();
+					    		Toast.makeText(context, "Tweet Publicado",Toast.LENGTH_LONG).show();
+					    	}else{
+					    		tweet =" "+lugar+userInput.getText().toString()+" via @CampusMapUdeA";
+					    		Log.d("AUT","NO AUTE");
+					    		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+					    				context);
+					    		// set title
+								alertDialogBuilder.setTitle("Autorización");
 
-				Toast.makeText(
-						MainActivity.this, 
-						"Click Largo\n" + 
-						"Lat: " + point.latitude + "\n" +
-						"Lng: " + point.latitude + "\n" +
-						"X: " + coord.x + " - Y: " + coord.y,
-						Toast.LENGTH_SHORT).show();
-				tweet = "Prueba 2 "+ point.latitude+point.longitude+ " ";
-				autorizarApp();
+								alertDialogBuilder
+								.setMessage("¿Deseas publicar en Twitter el evento?")
+								.setCancelable(false)
+								.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,int id) {
+										Toast.makeText(context, "Lanzando navegador",Toast.LENGTH_LONG).show();
+							    		autorizarApp();
+							    		
+									}
+								  })
+								.setNegativeButton("No",new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,int id) {
+										Toast.makeText(context, "No se publicó en twitter",Toast.LENGTH_LONG).show();
+										dialog.cancel();
+									}
+								});
+				 
+								// create alert dialog
+								AlertDialog alertDialog = alertDialogBuilder.create();
+				 
+								// show it
+								alertDialog.show();
+								
+					    	}
+								
+							mostrarTweet(evento.latitude, evento.longitude, userInput.getText().toString(),lugar );
+						
+						
+							Log.d("DESP","YA MOSTRE");
+						//result.setText(userInput.getText());
+					    }
+
+					  })
+					.setNegativeButton("Cancel",
+					  new DialogInterface.OnClickListener() {
+					    public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					    }
+					  });
+ 
+				// create alert dialog
+				AlertDialog alertDialog = alertDialogBuilder.create();
+ 
+				// show it
+				alertDialog.show();
+ 
+				//**FinAlertInputDialog
 			}
+			
 		});
 		/*Si s descomenta esta linea agregar 
 		 * import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -131,7 +227,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 
 		/*mapa.setOnMarkerClickListener(new OnMarkerClickListener() {
 			public boolean onMarkerClick(Marker marker) {
-				Toast.makeText(
+				Toast.
+(
 						MainActivity.this, 
 						"Marcador pulsado:\n" + 
 						marker.getTitle(),
@@ -139,9 +236,6 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 				return false;
 			}
 		});*/
-		/*
-		Intent intent = this.getIntent();
-        this.onNewIntent(intent);}*/
 	}
 
 
@@ -180,59 +274,76 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 				zonaRecreation1();
 				zonaRecreation2();
 				int iconSo = R.drawable.soccer2;
-				mostrarMarcador(6.269207186719753, -75.56761734187603, "Cancha Sintética", iconSo);
-				mostrarMarcador(6.269448141672462, -75.56949153542519, "Cancha de Fútbol", iconSo);
+				String infoSO ="Creado con la Ciudad Universitaria. Tiene una cancha de gramilla de 110 x90m con dos tribunas laterales para el disfrute de los espectáculos futbolísticos entre otros que se desarrollan allí. Contiene además una pista atlética y otros espacios para la modalidad de la misma.";
+				mostrarMarcador(6.269207186719753, -75.56761734187603, "Cancha Sintética",infoSO, iconSo);
+				
+				String infoSO1 ="Creado con la Ciudad Universitaria. Tiene una cancha de gramilla de 110 x90m con dos tribunas laterales para el disfrute de los espectáculos futbolísticos entre otros que se desarrollan allí. Contiene además una pista atlética y otros espacios para la modalidad de la misma.";
+				mostrarMarcador(6.269448141672462, -75.56949153542519, "Cancha de Fútbol",infoSO1, iconSo);
+				
 				int iconCT = R.drawable.tennis;
-				mostrarMarcador(6.268967231469515, -75.5682734772563, "Tennis de Campo", iconCT);
+				String infoCT="La Universidad de Antioquia cuenta con 4 canchas de tenis en esta disciplina con piso en polvo de ladrillo las cuales cumplen con todas las condiciones para la práctica de este deporte, de igual manera en este espacio se desarrollan las competencias que se ofrecen en los servicios del Departamento de Deportes, como también se realizan eventos de carácter Universitario de Liga y Federaciones.";
+				mostrarMarcador(6.268967231469515, -75.5682734772563, "Tennis de Campo",infoCT, iconCT);
+				
+				
 				int iconPi = R.drawable.swim;
-				mostrarMarcador(6.268940569768229, -75.5687190592289, "Piscina", iconPi);
+				String infoPi="El servicio se presta de lunes a domingo en los siguientes horarios:\n Bañista libre de 11:00 a 1:30 p.m. \n Deporte Formativo: 8:00 a 11:00 y de 2:00 a 4:00 p.m.\n Deporte Representativo: 6:00 a 8:00 a.m, y de 4:00 a 8:00 p.m.";
+				mostrarMarcador(6.268940569768229, -75.5687190592289, "Piscina",infoPi, iconPi);
+				
 				int iconScuba = R.drawable.scubadiving;
-				mostrarMarcador(6.26927617383378, -75.56869693100452, "Scuba", iconScuba);
+				String infoScu="El área acuática está compuesta por la piscina y el pozo, que ahora tienen una imagen renovada que cumple con los requerimientos exigidos para la práctica y el Aprovechamiento del Tiempo Libre.";
+				mostrarMarcador(6.26927617383378, -75.56869693100452, "Scuba", infoScu,iconScuba);
+				
 				int iconG = R.drawable.gym;
-				mostrarMarcador(6.269512129690994, -75.5687566101551, "Gimnasio", iconG);
+				String infoCo="Este espacio no reúne las condiciones técnicas de un coliseo, pero se compone de escenarios que permiten la práctica de los siguientes deportes Baloncesto, Voleibol, Fútbol Sala, Gimnasia, además contiene espacios que permiten la práctica de las siguientes disciplinas deportivas como Taekwondo, judo, aikido, karate-do, y levantamiento de pesas.";
+				mostrarMarcador(6.269512129690994, -75.5687566101551, "Coliseo",infoCo, iconG);
+				
 				int iconB = R.drawable.basketball;
-				mostrarMarcador(6.269832736207243, -75.56735716760159, "Basketball", iconB);
+				String infoB ="La Universidad cuenta con 4 canchas de 28x15m en piso de asfalto, donde se desarrollan actividades deportivas de los servicios formativo, representativo y recreativo, en baloncesto, voleibol, futbolito, juegos múltiples entre otras, permanecen disponibles de 6:00 a 8:00 p.m.";
+				mostrarMarcador(6.269832736207243, -75.56735716760159, "Basketball", infoB, iconB);
 				break;
 				
 			case R.id.menu_Cafeterias:
 				
 				int iconS = R.drawable.sandwich;
-				mostrarMarcador(6.2682630288269126, -75.56838143616915, "Cafetria", iconS);
-				mostrarMarcador(6.2683630288269126, -75.56838143616915, "Cafetria", iconS);
-				mostrarMarcador(6.2684630288269126, -75.56838143616915, "Cafetria", iconS);
-				mostrarMarcador(6.268602299314811, -75.56847430765629, "juguitos", iconS);
-				mostrarMarcador(6.268702299314811, -75.56847430765629, "Pollos :(", iconS);
-				mostrarMarcador(6.268502299314811, -75.56847430765629, "Patacones", iconS);
-				mostrarMarcador(6.268399336937477, -75.56870564818382, "Deportes", iconS);
-				mostrarMarcador(6.268010408811437, -75.56828454136848, "COESDUA", iconS);
+				String infoS="";
+				mostrarMarcador(6.2682630288269126, -75.56838143616915, "Cafetria",infoS, iconS);
+				mostrarMarcador(6.2683630288269126, -75.56838143616915, "Cafetria",infoS, iconS);
+				mostrarMarcador(6.2684630288269126, -75.56838143616915, "Cafetria",infoS, iconS);
+				mostrarMarcador(6.268602299314811, -75.56847430765629, "juguitos",infoS, iconS);
+				mostrarMarcador(6.268702299314811, -75.56847430765629, "Pollos :(",infoS, iconS);
+				mostrarMarcador(6.268502299314811, -75.56847430765629, "Patacones",infoS, iconS);
+				mostrarMarcador(6.268399336937477, -75.56870564818382, "Deportes",infoS, iconS);
+				mostrarMarcador(6.268010408811437, -75.56828454136848, "COESDUA",infoS, iconS);
 				
 				break;
 			case R.id.menu_Salas_de_computadores:
-				
+				String infoC="";
 				int iconC = R.drawable.computers;
-				mostrarMarcador(6.267631478558866, -75.56759253144264, "lis", iconC);
-				mostrarMarcador(6.26781544473171, -75.56769981980324, "Telemática", iconC);
-				mostrarMarcador(6.268334672985597,-75.56792570819855 , "Sala 1 bloque 20", iconC);
-				mostrarMarcador(6.26833800755324,-75.56779616004229 , "Sala 2 bloque 20", iconC);
-				mostrarMarcador(6.268250364501864,-75.56773223944664 , "Sala 3 bloque 20", iconC);
+				mostrarMarcador(6.267631478558866, -75.56759253144264, "lis",infoC, iconC);
+				mostrarMarcador(6.26781544473171, -75.56769981980324, "Telemática",infoC, iconC);
+				mostrarMarcador(6.268334672985597,-75.56792570819855 , "Sala 1 bloque 20",infoC, iconC);
+				mostrarMarcador(6.26833800755324,-75.56779616004229 , "Sala 2 bloque 20",infoC, iconC);
+				mostrarMarcador(6.268250364501864,-75.56773223944664 , "Sala 3 bloque 20", infoC,iconC);
 				break;
 			case R.id.menu_parking:
 				zonaParking1();
 				zonaParking2();
 				int iconP = R.drawable.parking;
-				mostrarMarcador(6.266966933546314, -75.56779738515615, "Parking", iconP);
-				mostrarMarcador(6.267457510487932, -75.57039745151997, "Parking", iconP);
+				String infoP="";
+				mostrarMarcador(6.266966933546314, -75.56779738515615, "Parking", infoP,iconP);
+				mostrarMarcador(6.267457510487932, -75.57039745151997, "Parking",infoP, iconP);
 				break;
 			case R.id.menu_restroom:
+				String infoR="";
 				int iconR = R.drawable.toilets;
-				mostrarMarcador(6.268442995517917, -75.56711744517088, "Baño Mujeres", iconR);
-				mostrarMarcador(6.267995411577137, -75.56711744517088, "Baño Hombres", iconR);
-				mostrarMarcador(6.267995411577137, -75.5675006678388, "Baño Mujeres", iconR);
-				mostrarMarcador(6.268475656132965, -75.56745339185, "Baño Hombres", iconR);
-				mostrarMarcador(6.267640476905802, -75.5677330121398, "Baños", iconR);
-				mostrarMarcador(6.268063732307746, -75.56825671344995, "Baño Mujeres", iconR);
-				mostrarMarcador(6.268453993480358, -75.56823659688234, "Baño Hombres", iconR);
-				mostrarMarcador(6.268365676502711, -75.56863021105528, "Baños", iconR);
+				mostrarMarcador(6.268442995517917, -75.56711744517088, "Baño Mujeres",infoR, iconR);
+				mostrarMarcador(6.267995411577137, -75.56711744517088, "Baño Hombres",infoR, iconR);
+				mostrarMarcador(6.267995411577137, -75.5675006678388, "Baño Mujeres", infoR, iconR);
+				mostrarMarcador(6.268475656132965, -75.56745339185, "Baño Hombres",infoR, iconR);
+				mostrarMarcador(6.267640476905802, -75.5677330121398, "Baños", infoR, iconR);
+				mostrarMarcador(6.268063732307746, -75.56825671344995, "Baño Mujeres", infoR, iconR);
+				mostrarMarcador(6.268453993480358, -75.56823659688234, "Baño Hombres", infoR,iconR);
+				mostrarMarcador(6.268365676502711, -75.56863021105528, "Baños",infoR, iconR);
 				break;
 			case R.id.menu_location:
 				miubicacion();
@@ -261,16 +372,16 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 	 */
 	@Override
 	protected  void onNewIntent(Intent intent) {
-		Log.d("aca ", "entreeeeeeeeeeeeeeeeeeeeeee");
 		super.onNewIntent(intent);
 		final Uri uri = intent.getData();
 		SharedPreferences preferencias = this.getSharedPreferences("TwitterPrefs", MODE_PRIVATE);
-		Log.i("MGL", "acá no llegué");
+		
 		if (uri != null && uri.toString().indexOf(TwitterData.CALLBACK_URL) != -1) {
 			Log.i("MGL", "Callback received : " + uri);
 		
 			new RetrieveAccessTokenTask(this, getConsumer(), getProvider(),
 					preferencias, tweet).execute(uri);
+			Toast.makeText(context, "Tweet publicado",Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -280,11 +391,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 			Log.d("NO", "autorizar");
 			// retrieve the request token
 			new OAuthRequestTokenTask(this, getConsumer(), getProvider()).execute();
-			//new SendTuitTask(tweet+"via @CampusMapUdea", prefs).execute();
-			Log.d("NO", "autorizarº11");
 		} catch (Exception e) {
 			Log.d("error", "autorizar");
-			//codigoRespuesta.setText(e.getMessage());
 		}		
 	}
 	
@@ -361,21 +469,35 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 
 		mapa.addPolygon(rectangulo);
 	}
-	private void mostrarMarcador(double lat, double lng, String lugar, int icon)
+	
+	
+	private void mostrarMarcador(double lat, double lng, String lugar,String info, int icon)
 	{
 		 mapa.addMarker(new MarkerOptions()
 	        .position(new LatLng(lat, lng))
 	        .title("Lugar:"+lugar)
+	        .snippet(info)
 	        .icon(BitmapDescriptorFactory.fromResource(icon)))
 	        ;
 	}
 	//metodod para mostrar ubicacion buscada
 	private void mostrarUbicacion(double lat, double lng, String lugar)
 	{
-		
 		 mapa.addMarker(new MarkerOptions()
 	        .position(new LatLng(lat, lng))
 	        .title("Su sitio:"+lugar))
+	        ;
+	}
+	//Metodo para tweet
+	private void mostrarTweet(double lat, double lng, String mensaje,String lugar)
+	{
+
+		int icon = R.drawable.icontt;
+		 mapa.addMarker(new MarkerOptions()
+	        .position(new LatLng(lat, lng))
+	        .title(lugar)
+	        .snippet(mensaje)
+	        .icon(BitmapDescriptorFactory.fromResource(icon)))
 	        ;
 	}
 	
@@ -396,6 +518,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 		    rectangulo.fillColor(Color.argb(60, 255,255,0));
 
 			mapa.addPolygon(rectangulo);
+			;
 		}
 	private void zonaParking2() {
 		PolygonOptions rectangulo = new PolygonOptions()
@@ -538,5 +661,40 @@ public class MainActivity extends android.support.v4.app.FragmentActivity implem
 		
 		//BDFin
 	}
- 
+	private String dondetweet(LatLng evento) {
+		String lugar = "";
+		
+		//bloque19
+		if((evento.latitude>6.267981)&&(evento.latitude>6.26792)
+				&&(evento.latitude<6.268538)&&(evento.latitude<6.268482)&&
+				(evento.longitude>-75.567503)&&(evento.longitude>-75.567575)
+				&&(evento.longitude<-75.567063)&&(evento.longitude<-75.567111)
+				){lugar="Bloque 19: ";
+				return lugar; }
+		//bloque18
+		if((evento.latitude>6.267629)&&(evento.latitude>6.267559)
+				&&(evento.latitude<6.267837)&&(evento.latitude<6.267794)&&
+				(evento.longitude>-75.567859)&&(evento.longitude>-75.567886)
+				&&(evento.longitude<-75.567312)&&(evento.longitude<-75.567328)
+				){lugar="Bloque 18: ";
+				return lugar; }
+		//bloque21
+		if((evento.latitude>6.26797)&&(evento.latitude>6.26785)
+				&&(evento.latitude<6.268288)&&(evento.latitude<6.268221)&&
+				(evento.longitude>-75.568305)&&(evento.longitude>-75.568342)
+				&&(evento.longitude<-75.56769)&&(evento.longitude<-75.567715)
+				){lugar="Bloque 21: ";
+				return lugar; }
+		//bloque20
+		if((evento.latitude>6.268288)&&(evento.latitude>6.268221)
+				&&(evento.latitude<6.268568)&&(evento.latitude<6.268496)&&
+				(evento.longitude>-75.568281)&&(evento.longitude>-75.568305)
+				&&(evento.longitude<-75.567642)&&(evento.longitude<-75.56769)
+				){lugar="Bloque 20: ";
+				return lugar; }
+		
+		return lugar;
+	}
+
+	
 }

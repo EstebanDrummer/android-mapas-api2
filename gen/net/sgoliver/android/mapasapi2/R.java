@@ -182,38 +182,49 @@ containing a value of this type.
         public static final int common_signin_btn_text_pressed_dark=0x7f020018;
         public static final int common_signin_btn_text_pressed_light=0x7f020019;
         public static final int computers=0x7f02001a;
-        public static final int gym=0x7f02001b;
-        public static final int ic_launcher=0x7f02001c;
-        public static final int parking=0x7f02001d;
-        public static final int sandwich=0x7f02001e;
-        public static final int scubadiving=0x7f02001f;
-        public static final int soccer2=0x7f020020;
-        public static final int swim=0x7f020021;
-        public static final int tennis=0x7f020022;
-        public static final int toilets=0x7f020023;
-        public static final int udea=0x7f020024;
+        public static final int esud=0x7f02001b;
+        public static final int gym=0x7f02001c;
+        public static final int ic_launcher=0x7f02001d;
+        public static final int icontt=0x7f02001e;
+        public static final int parking=0x7f02001f;
+        public static final int sandwich=0x7f020020;
+        public static final int scubadiving=0x7f020021;
+        public static final int soccer2=0x7f020022;
+        public static final int swim=0x7f020023;
+        public static final int tennis=0x7f020024;
+        public static final int toilets=0x7f020025;
+        public static final int tw=0x7f020026;
+        public static final int twi=0x7f020027;
+        public static final int twt=0x7f020028;
+        public static final int udea=0x7f020029;
     }
     public static final class id {
+        public static final int editTextDialogUserInput=0x7f05000c;
         public static final int hybrid=0x7f050004;
-        public static final int map=0x7f050006;
-        public static final int menu_Cafeterias=0x7f05000b;
-        public static final int menu_Salas_de_computadores=0x7f05000a;
-        public static final int menu_buscar=0x7f05000f;
-        public static final int menu_location=0x7f050008;
-        public static final int menu_marcadores_ing=0x7f05000e;
-        public static final int menu_parking=0x7f05000c;
-        public static final int menu_recreation=0x7f050009;
-        public static final int menu_restroom=0x7f05000d;
+        public static final int imageView1=0x7f050007;
+        public static final int layout_root=0x7f05000a;
+        public static final int map=0x7f050005;
+        public static final int menu_Cafeterias=0x7f050010;
+        public static final int menu_Salas_de_computadores=0x7f05000f;
+        public static final int menu_buscar=0x7f050014;
+        public static final int menu_location=0x7f05000d;
+        public static final int menu_marcadores_ing=0x7f050013;
+        public static final int menu_parking=0x7f050011;
+        public static final int menu_recreation=0x7f05000e;
+        public static final int menu_restroom=0x7f050012;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
         public static final int satellite=0x7f050002;
-        public static final int status_text=0x7f050005;
+        public static final int status_text=0x7f050006;
         public static final int terrain=0x7f050003;
-        public static final int textOut=0x7f050007;
+        public static final int textView1=0x7f05000b;
+        public static final int tv_lat=0x7f050008;
+        public static final int tv_lng=0x7f050009;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int main=0x7f030001;
+        public static final int prompts=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f090000;
