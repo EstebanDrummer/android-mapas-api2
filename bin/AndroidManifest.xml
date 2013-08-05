@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.sgoliver.android.mapasapi2"
+    package="com.seminario.android.campusmap"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -8,10 +8,10 @@
         android:minSdkVersion="11"
         android:targetSdkVersion="17" />
     <permission
-      android:name="net.sgoliver.android.mapasapi2.permission.MAPS_RECEIVE"
+      android:name="com.seminario.android.campusmap.MAPS_RECEIVE"
       android:protectionLevel="signature"/>
     	<!-- Permisos para los mapas -->
-    	<uses-permission android:name="net.sgoliver.android.mapasapi2.permission.MAPS_RECEIVE"/>
+    	<uses-permission android:name="com.seminario.android.campusmap.MAPS_RECEIVE"/>
 		<uses-permission android:name="android.permission.INTERNET"/>
 		<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 		<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -28,9 +28,9 @@
         android:theme="@style/AppTheme"
          >
         <meta-data android:name="com.google.android.maps.v2.API_KEY"
-               android:value="AIzaSyAooowFppDdkiQy3uIiyqGZrZwVYarNTWc"/>
+               android:value=""/>
         <activity
-            android:name="net.sgoliver.android.mapasapi2.MainActivity"
+            android:name="com.seminario.android.campusmap.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleInstance" >
               
